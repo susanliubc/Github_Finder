@@ -1,53 +1,48 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
+import React, { useState, useContext } from 'react';
+import GithubContext from '../../context/github/GithubContext';
+import AlertContext from '../../context/alert/AlertContext';
 
-class Search extends Component {
-  state = {
-    text: ''
-  };
+const Search = () => {
+  const githubContext = useContext(GithubContext);
+  const alertContext = useContext(AlertContext);
 
-  static propTypes = {
-    searchUsers: PropTypes.func.isRequired,
-    clearUsers: PropTypes.func.isRequired,
-    showClear: PropTypes.bool.isRequired,
-    setAlert: PropTypes.func.isRequired
-  };
+  const { searchUsers, users, clearUsers } = githubContext;
 
-  handleChange = e => this.setState({ [e.target.name]: e.target.value });
+  const { setAlert } = alertContext;
 
-  handleSubmit = e => {
+  const [text, setText] = useState('');
+
+  const handleChange = e => setText(e.target.value);
+
+  const handleSubmit = e => {
     e.preventDefault();
-    if (this.state.text === '') {
-      this.props.setAlert('Please enter something', 'danger');
+    if (text === '') {
+      setAlert('Please enter something', 'danger');
     } else {
-      this.props.searchUsers(this.state.text);
-      this.setState({
-        text: ''
-      });
+      searchUsers(text);
+      setText('');
     }
   };
-  render() {
-    const { showClear, clearUsers } = this.props;
-    return (
-      <div>
-        <form className='form' onSubmit={this.handleSubmit}>
-          <input
-            type='text'
-            name='text'
-            value={this.state.text}
-            onChange={this.handleChange}
-            placeholder='Search Users...'
-          />
-          <input type='submit' value='Search' className='btn btn-dark' />
-        </form>
-        {showClear === true && (
-          <button className='btn btn-light btn-block' onClick={clearUsers}>
-            Clear
-          </button>
-        )}
-      </div>
-    );
-  }
-}
+
+  return (
+    <div>
+      <form className='form' onSubmit={handleSubmit}>
+        <input
+          type='text'
+          name='text'
+          value={text}
+          onChange={handleChange}
+          placeholder='Search Users...'
+        />
+        <input type='submit' value='Search' className='btn btn-dark' />
+      </form>
+      {users.length > 0 && (
+        <button className='btn btn-light btn-block' onClick={clearUsers}>
+          Clear
+        </button>
+      )}
+    </div>
+  );
+};
 
 export default Search;
